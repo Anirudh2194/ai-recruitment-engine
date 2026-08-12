@@ -1,0 +1,14 @@
+We are looking for a Frontend Developer skilled in React to build modern, 
+responsive web applications.
+
+Responsibilities:
+- Build reusable UI components using React and Next.js
+- Implement responsive designs from Figma mockups
+- Integrate frontend applications with REST APIs
+- Optimize applications for performance and accessibility
+
+Requirements:
+- Strong proficiency in JavaScript/TypeScript
+- Hands-on experience with React and modern CSS (Tailwind or similar)
+- Understanding of state management (Redux or Context API)
+- Familiarity with Git and collaborative development workflows

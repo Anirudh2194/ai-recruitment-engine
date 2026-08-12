@@ -1,0 +1,13 @@
+We are hiring a Data Analyst Intern to support our analytics team.
+
+Responsibilities:
+- Clean and analyze large datasets using Python (Pandas, NumPy)
+- Build machine learning models for predictive analytics
+- Create dashboards and visualizations using Power BI or Tableau
+- Present insights to stakeholders in a clear, actionable way
+
+Requirements:
+- Strong understanding of statistics and data analysis
+- Experience with Python data libraries (Pandas, NumPy, scikit-learn)
+- Familiarity with SQL for querying data
+- Bonus: experience with TensorFlow, Jupyter notebooks, or dashboarding tools

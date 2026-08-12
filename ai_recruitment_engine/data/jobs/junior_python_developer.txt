@@ -1,0 +1,14 @@
+We are looking for a Junior Python Developer to join our backend engineering team.
+
+Responsibilities:
+- Build and maintain REST APIs using Django or Flask
+- Write clean, well-tested Python code
+- Work with PostgreSQL or MySQL databases
+- Collaborate with the team using Git and Agile practices
+
+Requirements:
+- Solid understanding of Python fundamentals
+- Experience with at least one web framework (Django/Flask)
+- Familiarity with SQL databases
+- Understanding of REST API design
+- Bonus: experience with Docker, Redis, or Celery
