@@ -32,3 +32,6 @@ streamlit>=1.37.1
 
 # Testing
 pytest>=8.3.2
+groq>=0.11.0
+google-generativeai>=0.8.0
+streamlit-javascript>=0.1.5
