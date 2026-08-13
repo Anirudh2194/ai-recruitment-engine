@@ -1,0 +1,1 @@
+﻿-r ai_recruitment_engine/requirements.txt
