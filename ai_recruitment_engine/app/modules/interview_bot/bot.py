@@ -20,7 +20,7 @@ class InterviewState(TypedDict):
     messages: list[dict]
 
 
-def build_system_prompt(candidate: Candidate, job: JobDescription, skill_gap: dict | None = None) -> str:
+def build_system_prompt(candidate: Candidate, job: JobDescription, skill_gap: dict | None = None, force_close: bool = False) -> str:
     gap_section = ""
     if skill_gap:
         missing = skill_gap.get("missing_skills", [])
@@ -38,7 +38,7 @@ Prioritize at least 1-2 questions that probe the high-priority gaps above, to \
 see if the candidate has relevant experience the resume didn't capture.
 """
 
-    return f"""You are a professional, friendly technical recruiter conducting an initial \
+    base_prompt = f"""You are a professional, friendly technical recruiter conducting an initial \
 screening interview by chat for the role of "{job.title}".
 
 JOB DESCRIPTION:
@@ -59,6 +59,15 @@ question, thank the candidate, briefly summarize their fit for the role in 2-3 s
 and say the screening is complete. Do not ask further questions after that point.
 """
 
+    if force_close:
+        base_prompt += """
+IMPORTANT: The candidate has now answered all screening questions. Do NOT ask another \
+question under any circumstances. Instead, warmly thank them by name, give a brief 2-3 \
+sentence summary of their fit for the role based on the conversation so far, and clearly \
+state that the screening interview is now complete.
+"""
+
+    return base_prompt
 
 def _respond_node(state: InterviewState) -> InterviewState:
     reply = chat(state["messages"], temperature=0.4)
@@ -78,13 +87,11 @@ def get_next_bot_message(
     job: JobDescription,
     history: list[dict],
     skill_gap: dict | None = None,
+    force_close: bool = False,
 ) -> str:
-    """history: prior turns as [{"role": "assistant"|"user", "content": ...}, ...]
-    (no system message — this function adds it). Returns the bot's next message."""
-    messages = [{"role": "system", "content": build_system_prompt(candidate, job, skill_gap)}] + history
+    messages = [{"role": "system", "content": build_system_prompt(candidate, job, skill_gap, force_close)}] + history
     result = _compiled_graph.invoke({"messages": messages})
     return result["messages"][-1]["content"]
-
 
 def generate_closing_summary(candidate: Candidate, job: JobDescription, history: list[dict]) -> str:
     """Generate a concise, HR-facing assessment of the candidate based on the
@@ -107,12 +114,18 @@ def generate_closing_summary(candidate: Candidate, job: JobDescription, history:
     return chat(messages, temperature=0.3)
 
 
-def save_interview(session: Session, candidate: Candidate, history: list[dict], status: str = "completed") -> Interview:
-    """Persist the transcript to the database, plus a separate HR-facing
-    closing summary appended as its own entry (never shown to the candidate,
-    since it's added to a copy of the list, not the one driving the chat UI)."""
+def save_interview(
+    session: Session,
+    candidate: Candidate,
+    history: list[dict],
+    job: JobDescription | None = None,
+    status: str = "completed",
+) -> Interview:
+    """Persist the transcript, plus a separate HR-facing closing summary
+    appended as its own entry (never shown to the candidate)."""
     try:
-        job = session.query(JobDescription).order_by(JobDescription.id.desc()).first()
+        if job is None:
+            job = session.query(JobDescription).order_by(JobDescription.id.desc()).first()
         summary_text = generate_closing_summary(candidate, job, history) if job else None
     except Exception:
         summary_text = None
