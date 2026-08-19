@@ -244,20 +244,24 @@ else:
         answer = st.chat_input("Type your answer directly...")
         if answer:
             chat_state["history"].append({"role": "user", "content": answer})
+            asked_so_far = sum(1 for m in chat_state["history"] if m["role"] == "assistant")
+            force_close = asked_so_far >= MAX_QUESTIONS
+
             with st.spinner("Generating next targeted question..."):
                 next_msg = get_next_bot_message(
-                    candidate_choice, job_choice, chat_state["history"], skill_gap=skill_gap
+                    candidate_choice, job_choice, chat_state["history"],
+                    skill_gap=skill_gap, force_close=force_close,
                 )
 
             chat_state["history"].append({"role": "assistant", "content": next_msg})
 
-            asked_count = sum(1 for m in chat_state["history"] if m["role"] == "assistant")
-            if asked_count > MAX_QUESTIONS:
+            if force_close:
                 chat_state["completed"] = True
                 save_session = SessionLocal()
                 try:
                     candidate = save_session.get(Candidate, candidate_choice.id)
-                    save_interview(save_session, candidate, chat_state["history"])
+                    job = save_session.get(JobDescription, job_choice.id)
+                    save_interview(save_session, candidate, chat_state["history"], job=job)
                 finally:
                     save_session.close()
             st.rerun()
